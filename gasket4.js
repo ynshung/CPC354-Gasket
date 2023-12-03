@@ -4,6 +4,7 @@ var gl;
 var points = [];
 var colors = [];
 
+var initialScale = 1;
 var NumTimesToSubdivide = 3;
 
 window.onload = function init() {
@@ -25,9 +26,14 @@ window.onload = function init() {
     var vertices = [
         vec3(0.0, 0.0, -1.0),
         vec3(0.0, 0.9428, 0.3333),
-        vec3(-0.8165, -0.4714, 0.3333),
-        vec3(0.8165, -0.4714, 0.3333),
+        vec3(-0.5, -0.4714, 0.3333),
+        vec3(0.5, -0.4714, 0.3333),
     ];
+
+    // Scale down the vertices
+    for (var i = 0; i < vertices.length; ++i) {
+        vertices[i] = scale(initialScale * 0.5, vertices[i]);
+    }
 
     divideTetra(
         vertices[0],
@@ -129,6 +135,7 @@ function divideTetra(a, b, c, d, count) {
 }
 
 function render() {
+    gl.clearColor(0.5, 0.5, 0.5, 1.0); // Set the background color to gray
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, points.length);
 }
