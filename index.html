@@ -2,30 +2,54 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-        <title>3D Sierpinski Gasket</title>
+        <title>3D Ident Program</title>
 
         <script id="vertex-shader" type="x-shader/x-vertex">
             attribute vec3 vPosition;
             attribute vec3 vColor;
-            varying vec4 color;
+            varying vec4 fColor;
 
-            void
-            main()
+            uniform vec3 theta;
+
+            void main()
             {
-                gl_Position = vec4(vPosition, 1.0);
-                color = vec4(vColor, 1.0);
+                // Compute the sines and cosines of theta for each of
+                //  the three axes in one computation.
+                vec3 angles = radians(theta);
+                vec3 c = cos(angles);
+                vec3 s = sin(angles);
+                
+                mat4 rx = mat4( 1.0, 0.0, 0.0, 0.0,
+                                0.0, c.x, s.x, 0.0,
+                                0.0, -s.x, c.x, 0.0,
+                                0.0, 0.0, 0.0, 1.0 );
+
+                mat4 ry = mat4( c.y, 0.0, -s.y, 0.0,
+                                0.0, 1.0, 0.0, 0.0,
+                                s.y, 0.0, c.y, 0.0,
+                                0.0, 0.0, 0.0, 1.0 );
+
+
+                mat4 rz = mat4( c.z, s.z, 0.0, 0.0,
+                                -s.z, c.z, 0.0, 0.0,
+                                0.0, 0.0, 1.0, 0.0,
+                                0.0, 0.0, 0.0, 1.0 );
+
+
+
+                fColor = vec4(vColor, 1.0);
+                gl_Position = rz * ry * rx * vec4(vPosition, 1.0);
             }
         </script>
 
         <script id="fragment-shader" type="x-shader/x-fragment">
             precision mediump float;
 
-            varying vec4 color;
+            varying vec4 fColor;
 
-            void
-            main()
+            void main()
             {
-                gl_FragColor = color;
+                gl_FragColor = fColor;
             }
         </script>
 
