@@ -4,11 +4,14 @@ var gl;
 var points = [];
 var colors = [];
 var baseColors = [
-    vec4(1.0, 0.0, 0.0, 1.0),
-    vec4(0.0, 1.0, 0.0, 1.0),
-    vec4(0.0, 0.0, 1.0, 1.0),
-    vec4(0.0, 0.0, 0.0, 1.0),
+    vec3(1.0, 0.0, 0.0),
+    vec3(0.0, 1.0, 0.0),
+    vec3(0.0, 0.0, 1.0),
+    vec3(0.0, 0.0, 0.0),
 ];
+var bgRed = 0.5;
+var bgGreen = 0.5;
+var bgBlue = 0.5;
 
 var initialScale = 1;
 var NumTimesToSubdivide = 3;
@@ -58,7 +61,7 @@ window.onload = function init() {
 
         element.addEventListener("input", function() {
 
-            baseColors[0] = hexToVec4(color1.value, intensity1.value);
+            baseColors[0] = hexToVec3(color1.value, intensity1.value);
             renderGasket();
         })
     });
@@ -70,7 +73,7 @@ window.onload = function init() {
 
         element.addEventListener("input", function() {
 
-            baseColors[1] = hexToVec4(color2.value, intensity2.value);
+            baseColors[1] = hexToVec3(color2.value, intensity2.value);
             renderGasket();
         })
     });
@@ -83,7 +86,7 @@ window.onload = function init() {
 
         element.addEventListener("input", function() {
 
-            baseColors[2] = hexToVec4(color3.value, intensity3.value);
+            baseColors[2] = hexToVec3(color3.value, intensity3.value);
             renderGasket();
         })
     });
@@ -95,19 +98,37 @@ window.onload = function init() {
 
         element.addEventListener("input", function() {
 
-            baseColors[3] = hexToVec4(color4.value, intensity4.value);
+            baseColors[3] = hexToVec3(color4.value, intensity4.value);
             renderGasket();
         })
     });
+
+
+    // Background color settings
+    var bgColor = document.getElementById("bgColor");
+
+    bgColor.addEventListener("input", function() {
+        bgRed = parseInt(bgColor.value.substr(1, 2), 16) / 255;
+        bgGreen = parseInt(bgColor.value.substr(3, 2), 16) / 255;
+        bgBlue = parseInt(bgColor.value.substr(5, 2), 16) / 255;
+
+        baseColors[0] = hexToVec3(color1.value, intensity1.value);
+        baseColors[1] = hexToVec3(color2.value, intensity2.value);
+        baseColors[2] = hexToVec3(color3.value, intensity3.value);
+        baseColors[3] = hexToVec3(color4.value, intensity4.value);
+
+        renderGasket();
+    });
+
     // Make sure it render again after changing attributes
     renderGasket();
 };
 
-function hexToVec4(hex, intensity) {
-    const r = parseInt(hex.substr(1, 2), 16);
-    const g = parseInt(hex.substr(3, 2), 16);
-    const b = parseInt(hex.substr(5, 2), 16);
-    return vec4(r / 255, g / 255, b / 255, intensity);
+function hexToVec3(hex, intensity) {
+    const r = parseInt(hex.substr(1, 2), 16) * intensity + bgRed * 255 * (1 - intensity);
+    const g = parseInt(hex.substr(3, 2), 16) * intensity + bgGreen * 255 * (1 - intensity);
+    const b = parseInt(hex.substr(5, 2), 16) * intensity + bgBlue * 255 * (1 - intensity);
+    return vec3(r / 255, g / 255, b / 255);
 }
 
 
@@ -139,7 +160,7 @@ function renderGasket() {
         vertices[1],
         vertices[2],
         vertices[3],
-        NumTimesToSubdivide
+        NumTimesToSubdivide - 1
     );
 
     //
@@ -181,7 +202,7 @@ function renderGasket() {
 
 
 function render() {
-    gl.clearColor(0.5, 0.5, 0.5, 1.0); // Set the background color to gray
+    gl.clearColor(bgRed, bgGreen, bgBlue, 1.0); // Set the background color to gray
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, points.length);
 }
@@ -210,7 +231,7 @@ function tetra(a, b, c, d) {
 function divideTetra(a, b, c, d, count) {
     // check for end of recursion
 
-    if (count === 0) {
+    if (count < 0) {
         tetra(a, b, c, d);
     }
 
