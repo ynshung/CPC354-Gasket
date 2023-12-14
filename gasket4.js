@@ -4,12 +4,19 @@ var gl;
 var points = [];
 var colors = [];
 
+var NumTimesToSubdivide = 3;  // default subdivision
+var scaleLoc;                 // scale location
 var initialScale = 1;
-var NumTimesToSubdivide = 3;
+//var scale = [1, 1, 1];        // default scale
 
-var axis = 0; //(x=0, y=1, z=2)
+var speed = 1;
+var axis = 2; //(x=0, y=1, z=2)
 var theta = [0, 0, 0];
 var thetaLoc;
+
+var time = 0;
+var stop = true;
+
 
 window.onload = function init() {
     canvas = document.getElementById("gl-canvas");
@@ -140,10 +147,41 @@ function divideTetra(a, b, c, d, count) {
 }
 
 function render() {
+    
+    // Rotate right 180 degree
+    if(time < 90){
+        theta[axis] -= 2.0 * speed;
+        time = time + 1 * speed;
+    }
+    // Rotate left back to original orientation and left 180 degree
+    else if(time >= 90 && time < 270){
+        theta[axis] += 2.0 * speed;
+        time = time + 1 * speed;
+    }
+    // Rotate right back to original orientation
+    else if(time >= 270 && time < 360){
+        theta[axis] -= 2.0 * speed;
+        time = time + 1 * speed;
+    }
+    // Enlarge scale to appropriate size
+	else if(time >= 360 && time < 450){
+		scale[0] += 0.01 * speed;
+		scale[1] += 0.01 * speed;
+		scale[2] += 0.01 * speed;
+		gl.uniform3fv(scaleLoc, scale);
+		time = time + 1 * speed;
+	}
+    else{
+        time = 0;
+        theta = [0, 0, 0];
+        scale = [1, 1, 1];
+        gl.uniform3fv(scaleLoc, scale);
+    }
+
+    
     gl.clearColor(0.5, 0.5, 0.5, 1.0); // Set the background color to gray
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);    // Clear color and depth buffer
     
-    theta[axis] += 2.0;
     gl.uniform3fv(thetaLoc, theta);
     
     gl.drawArrays(gl.TRIANGLES, 0, points.length);
