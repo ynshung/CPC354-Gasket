@@ -1,45 +1,72 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-        <title>3D Sierpinski Gasket</title>
 
-        <script id="vertex-shader" type="x-shader/x-vertex">
-            attribute vec3 vPosition;
-            attribute vec3 vColor;
-            varying vec4 color;
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>3D Sierpinski Gasket</title>
 
-            void
-            main()
-            {
-                gl_Position = vec4(vPosition, 1.0);
-                color = vec4(vColor, 1.0);
-            }
-        </script>
+    <script id="vertex-shader" type="x-shader/x-vertex">
+        attribute vec3 vPosition; attribute vec3 vColor; varying vec4 color; void main() { gl_Position = vec4(vPosition, 1.0); color = vec4(vColor, 1.0); }
+    </script>
 
-        <script id="fragment-shader" type="x-shader/x-fragment">
-            precision mediump float;
+    <script id="fragment-shader" type="x-shader/x-fragment">
+        precision mediump float; varying vec4 color; void main() { gl_FragColor = color; }
+    </script>
 
-            varying vec4 color;
+    <link rel="stylesheet" type="text/css" href="style.css" />
 
-            void
-            main()
-            {
-                gl_FragColor = color;
-            }
-        </script>
+    <script type="text/javascript" src="Common/webgl-utils.js"></script>
+    <script type="text/javascript" src="Common/initShaders.js"></script>
+    <script type="text/javascript" src="Common/MV.js"></script>
+    <script type="text/javascript" src="gasket4.js"></script>
 
-        <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
 
-        <script type="text/javascript" src="Common/webgl-utils.js"></script>
-        <script type="text/javascript" src="Common/initShaders.js"></script>
-        <script type="text/javascript" src="Common/MV.js"></script>
-        <script type="text/javascript" src="gasket4.js"></script>
-    </head>
-
-    <body>
-        <canvas id="gl-canvas" width="1024" height="576">
+<body>
+    <canvas id="gl-canvas" width="1024" height="576">
             Oops ... your browser doesn't support the HTML5 canvas element
-        </canvas>
-    </body>
+    </canvas>
+
+    <div class="slidecontainer_1">
+        <!-- Slider: Subdivision - 1 to 5 -->
+        <label for="subdivision"> Number of Subdivisions: </label>
+        <input id="subdivision" type="range" min="1" max="5" value="3" step="1" class="slider_1">
+        <p>Value: <span id="subdivisionValue">3</span></p>
+    </div>
+
+
+    <div class="slidecontainer_2">
+        <!-- Slider: Initial size - 0.25 to 2 -->
+        <label for="scale"> Initial Size (Scale): </label>
+        <input id="scale" type="range" min="0.25" max="2" value="1" step="0.25" class="slider_2">
+        <p>Size: <span id="scaleValue">1</span></p>
+    </div>
+
+    <div class="slidecontainer_3">
+        <!-- Slider: Animation Speed - 0.5 to 10 -->
+        <label for="speed"> Animation Speed: </label>
+        <input id="speed" type="range" min="0.5" max="10" value="5" step="0.5" class="slider_3">
+        <p>Speed: <span id="speedValue">5x</span></p>
+    </div>
+
+    <!-- Colour picker for 4 faces-->
+    <label for="color">Color#1</label>
+    <input type="color" id="color1" value="#ff0000"><br><br>
+    <!-- <input type="range" id="intensity1" min="0" max="1" step="0.1" value="1"><br><br> -->
+
+    <label for="color">Color#2</label>
+    <input type="color" id="color2" value="#ff0000"><br><br>
+    <!-- <input type="range" id="intensity2" min="0" max="1" step="0.1" value="1"><br><br> -->
+
+    <label for="color">Color#3</label>
+    <input type="color" id="color3" value="#ff0000"><br><br>
+    <!-- <input type="range" id="intensity3" min="0" max="1" step="0.1" value="1"><br><br> -->
+
+    <label for="color">Color#4</label>
+    <input type="color" id="color4" value="#ff0000"><br><br>
+    <!-- <input type="range" id="intensity4" min="0" max="1" step="0.1" value="1"><br><br> -->
+
+
+</body>
+
 </html>

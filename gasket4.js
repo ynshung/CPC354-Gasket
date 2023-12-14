@@ -3,6 +3,12 @@ var gl;
 
 var points = [];
 var colors = [];
+var baseColors = [
+    vec4(1.0, 0.0, 0.0, 1.0),
+    vec4(0.0, 1.0, 0.0, 1.0),
+    vec4(0.0, 0.0, 1.0, 1.0),
+    vec4(0.0, 0.0, 0.0, 1.0),
+];
 
 var initialScale = 1;
 var NumTimesToSubdivide = 3;
@@ -15,6 +21,102 @@ window.onload = function init() {
         alert("WebGL isn't available");
     }
 
+    // Event listener for subdivision slider
+    var subdivision = document.getElementById("subdivision");
+
+    subdivision.addEventListener("input", function() {
+        NumTimesToSubdivide = subdivision.value;
+        console.log(subdivision.value);
+        document.getElementById("subdivisionValue").textContent = this.value;
+        renderGasket();
+    });
+
+
+    // Event listener for initial size (scale)
+    var scaleInput = document.getElementById("scale");
+
+    scaleInput.addEventListener("input", function() {
+        initialScale = scaleInput.value;
+        document.getElementById("scaleValue").textContent = this.value;
+        renderGasket();
+    });
+
+    // Event listener for animation speed
+    var speed = document.getElementById("speed");
+
+    speed.addEventListener("input", function() {
+        document.getElementById("speedValue").textContent = this.value + "x";
+    })
+
+
+
+    //Color settings
+    var color1 = document.getElementById("color1");
+    var intensity1 = document.getElementById("intensity1");
+
+    [color1, intensity1].forEach(function(element) {
+
+        element.addEventListener("input", function() {
+
+            baseColors[0] = hexToVec4(color1.value, intensity1.value);
+            renderGasket();
+        })
+    });
+
+    var color2 = document.getElementById("color2");
+    var intensity2 = document.getElementById("intensity2");
+
+    [color2, intensity2].forEach(function(element) {
+
+        element.addEventListener("input", function() {
+
+            baseColors[1] = hexToVec4(color2.value, intensity2.value);
+            renderGasket();
+        })
+    });
+
+
+    var color3 = document.getElementById("color3");
+    var intensity3 = document.getElementById("intensity3");
+
+    [color3, intensity3].forEach(function(element) {
+
+        element.addEventListener("input", function() {
+
+            baseColors[2] = hexToVec4(color3.value, intensity3.value);
+            renderGasket();
+        })
+    });
+
+    var color4 = document.getElementById("color4");
+    var intensity4 = document.getElementById("intensity4");
+
+    [color4, intensity4].forEach(function(element) {
+
+        element.addEventListener("input", function() {
+
+            baseColors[3] = hexToVec4(color4.value, intensity4.value);
+            renderGasket();
+        })
+    });
+    // Make sure it render again after changing attributes
+    renderGasket();
+};
+
+function hexToVec4(hex, intensity) {
+    const r = parseInt(hex.substr(1, 2), 16);
+    const g = parseInt(hex.substr(3, 2), 16);
+    const b = parseInt(hex.substr(5, 2), 16);
+    return vec4(r / 255, g / 255, b / 255, intensity);
+}
+
+
+function renderGasket() {
+    // Clear the points
+    points = [];
+    colors = [];
+
+
     //
     //  Initialize our data for the Sierpinski Gasket
     //
@@ -23,6 +125,7 @@ window.onload = function init() {
     // Four vertices on unit circle
     // Intial tetrahedron with equal length sides
 
+
     var vertices = [
         vec3(0.0, 0.0, -1.0),
         vec3(0.0, 0.9428, 0.3333),
@@ -30,10 +133,6 @@ window.onload = function init() {
         vec3(0.5, -0.4714, 0.3333),
     ];
 
-    // Scale down the vertices
-    for (var i = 0; i < vertices.length; ++i) {
-        vertices[i] = scale(initialScale * 0.5, vertices[i]);
-    }
 
     divideTetra(
         vertices[0],
@@ -80,15 +179,15 @@ window.onload = function init() {
     render();
 };
 
+
+function render() {
+    gl.clearColor(0.5, 0.5, 0.5, 1.0); // Set the background color to gray
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.drawArrays(gl.TRIANGLES, 0, points.length);
+}
+
 function triangle(a, b, c, color) {
     // add colors and vertices for one triangle
-
-    var baseColors = [
-        vec3(1.0, 0.0, 0.0),
-        vec3(0.0, 1.0, 0.0),
-        vec3(0.0, 0.0, 1.0),
-        vec3(0.0, 0.0, 0.0),
-    ];
 
     colors.push(baseColors[color]);
     points.push(a);
@@ -132,10 +231,4 @@ function divideTetra(a, b, c, d, count) {
         divideTetra(ac, bc, c, cd, count);
         divideTetra(ad, bd, cd, d, count);
     }
-}
-
-function render() {
-    gl.clearColor(0.5, 0.5, 0.5, 1.0); // Set the background color to gray
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.drawArrays(gl.TRIANGLES, 0, points.length);
 }
