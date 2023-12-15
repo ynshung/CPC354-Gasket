@@ -178,12 +178,17 @@ window.onload = function init() {
 };
 
 function hexToVec3(hex, intensity) {
-    const r = parseInt(hex.substr(1, 2), 16) * intensity + bgRed * 255 * (1 - intensity);
-    const g = parseInt(hex.substr(3, 2), 16) * intensity + bgGreen * 255 * (1 - intensity);
-    const b = parseInt(hex.substr(5, 2), 16) * intensity + bgBlue * 255 * (1 - intensity);
+    const r =
+        parseInt(hex.substr(1, 2), 16) * intensity +
+        bgRed * 255 * (1 - intensity);
+    const g =
+        parseInt(hex.substr(3, 2), 16) * intensity +
+        bgGreen * 255 * (1 - intensity);
+    const b =
+        parseInt(hex.substr(5, 2), 16) * intensity +
+        bgBlue * 255 * (1 - intensity);
     return vec3(r / 255, g / 255, b / 255);
 }
-
 
 function renderGasket() {
     // Clear the points
@@ -249,7 +254,7 @@ function renderGasket() {
     gl.uniform1f(scaleLoc, scale);
 
     render();
-};
+}
 
 //
 //  Initialize our data for the Sierpinski Gasket
