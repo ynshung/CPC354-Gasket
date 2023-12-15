@@ -17,6 +17,11 @@ var thetaLoc;
 var time = 0;
 var stop = true;
 
+var cBuffer;
+var vBuffer;
+var vColor;
+var vPosition;
+
 window.onload = function init() {
     canvas = document.getElementById("gl-canvas");
 
@@ -40,15 +45,15 @@ window.onload = function init() {
 
     // Create a buffer object, initialize it, and associate it with the
     // associated attribute variable in our vertex shader
-    var cBuffer = gl.createBuffer();
+    cBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
 
-    var vColor = gl.getAttribLocation(program, "vColor");
+    vColor = gl.getAttribLocation(program, "vColor");
     gl.vertexAttribPointer(vColor, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vColor);
 
-    var vBuffer = gl.createBuffer();
+    vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
 
@@ -187,10 +192,10 @@ window.onload = function init() {
 // Intial tetrahedron with equal length sides
 function createGasket() {
     var vertices = [
-        vec3(0.0, 0.0, -1.0),
-        vec3(0.0, 0.9428, 0.3333),
-        vec3(-0.5, -0.4714, 0.3333),
-        vec3(0.5, -0.4714, 0.3333),
+        vec3(0.0, 0.0, -0.5),
+        vec3(0.0, 0.47, 0.16),
+        vec3(-0.4, -0.23, 0.16),
+        vec3(0.4, -0.23, 0.16),
     ];
 
     // Scale down the vertices
@@ -215,7 +220,7 @@ function triangle(a, b, c, color) {
         vec3(1.0, 0.0, 0.0),
         vec3(0.0, 1.0, 0.0),
         vec3(0.0, 0.0, 1.0),
-        vec3(0.0, 0.0, 0.0),
+        vec3(0.5, 0.5, 0.5),
     ];
 
     colors.push(baseColors[color]);
@@ -263,10 +268,10 @@ function divideTetra(a, b, c, d, count) {
 }
 
 function disableInput() {
-    document.getElementById("subdivision-range").disabled = true;
-    document.getElementById("speed-range").disabled = true;
-    document.getElementById("start").disabled = true;
-    document.getElementById("reset").disabled = true;
+    // document.getElementById("subdivision-range").disabled = true;
+    // document.getElementById("speed-range").disabled = true;
+    // document.getElementById("start").disabled = true;
+    // document.getElementById("reset").disabled = true;
     document.getElementById("stop").disabled = false; // Disable all input except "stop" button
 }
 
@@ -279,7 +284,7 @@ function enableInput() {
 }
 
 function startAnimation() {
-    gl.clearColor(0.5, 0.5, 0.5, 1.0); // Set the background color to gray
+    gl.clearColor(0.8, 0.8, 0.8, 1.0); // Set the background color to gray
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // Clear color and depth buffer
 
     if (!stop) {
@@ -299,19 +304,27 @@ function startAnimation() {
             time = time + 1 * speed;
         }
         // Enlarge scale to appropriate size
-        else if (time >= 360 && time < 450) {
+        else if (time >= 360 && time < 420) {
             scale[0] += 0.01 * speed;
             scale[1] += 0.01 * speed;
             scale[2] += 0.01 * speed;
             gl.uniform3fv(scaleLoc, scale);
             time = time + 1 * speed;
         }
+        // Rescale back to original size
+        else if (time >= 420 && time < 480) {
+            scale[0] -= 0.01 * speed;
+            scale[1] -= 0.01 * speed;
+            scale[2] -= 0.01 * speed;
+            gl.uniform3fv(scaleLoc, scale);
+            time = time + 1 * speed;
+        }
         // Random movement
         else {
-            time = 0;
-            theta = [0, 0, 0];
-            scale = [1, 1, 1];
-            gl.uniform3fv(scaleLoc, scale);
+            theta[0] += 0.5 * speed;
+            theta[1] += 0.5 * speed;
+            theta[2] += 0.5 * speed;
+            time = time + 1 * speed;
         }
 
         // Stop animation when canvas is clicked
