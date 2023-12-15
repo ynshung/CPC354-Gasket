@@ -4,10 +4,10 @@ var gl;
 var points = [];
 var colors = [];
 var baseColors = [
-    vec3(1.0, 0.0, 0.0),
-    vec3(0.0, 1.0, 0.0),
-    vec3(0.0, 0.0, 1.0),
-    vec3(0.5, 0.5, 0.5),
+    vec3(253 / 255, 212 / 255, 19 / 255),
+    vec3(33 / 255, 106 / 255, 141 / 255),
+    vec3(28 / 255, 175 / 255, 236 / 255),
+    vec3(246 / 255, 167 / 255, 22 / 255),
 ];
 var bgRed = 1.0;
 var bgGreen = 1.0;
@@ -54,13 +54,13 @@ window.onload = function init() {
 
     // Parameters
     // Speed
-    document.getElementById("speed").onchange = function () {
+    document.getElementById("speed").onchange = function() {
         speed = document.getElementById("speed").value;
         document.getElementById("speedValue").textContent = speed + "x";
     };
 
     // Reset animation
-    document.getElementById("reset").onclick = function () {
+    document.getElementById("reset").onclick = function() {
         // Click stop button if animation is running
         if (!stop) {
             document.getElementById("start-stop").click();
@@ -76,12 +76,12 @@ window.onload = function init() {
     };
 
     // Reset attributes
-    document.getElementById("reset-attr").onclick = function () {
+    document.getElementById("reset-attr").onclick = function() {
         location.reload();
     };
 
     // Animation control
-    document.getElementById("start-stop").onclick = function () {
+    document.getElementById("start-stop").onclick = function() {
         stop = !stop;
         if (!stop) {
             if (time == 0) {
@@ -94,14 +94,14 @@ window.onload = function init() {
     };
 
     // Start animation when canvas is clicked
-    document.getElementById("gl-canvas").onclick = function () {
+    document.getElementById("gl-canvas").onclick = function() {
         document.getElementById("start-stop").click();
     };
 
     // Event listener for subdivision slider
     var subdivision = document.getElementById("subdivision");
 
-    subdivision.addEventListener("input", function () {
+    subdivision.addEventListener("input", function() {
         NumTimesToSubdivide = subdivision.value;
         document.getElementById("subdivisionValue").textContent = this.value;
         renderGasket();
@@ -110,7 +110,7 @@ window.onload = function init() {
     // Event listener for initial size (scale)
     var scaleInput = document.getElementById("scale");
 
-    scaleInput.addEventListener("input", function () {
+    scaleInput.addEventListener("input", function() {
         scale = scaleInput.value;
         document.getElementById("scaleValue").textContent = this.value;
         recalcBoundary();
@@ -118,13 +118,13 @@ window.onload = function init() {
     });
 
     // Rotation control, x, y, z
-    document.getElementById("rotateX").onclick = function () {
+    document.getElementById("rotateX").onclick = function() {
         axis = 0;
     };
-    document.getElementById("rotateY").onclick = function () {
+    document.getElementById("rotateY").onclick = function() {
         axis = 1;
     };
-    document.getElementById("rotateZ").onclick = function () {
+    document.getElementById("rotateZ").onclick = function() {
         axis = 2;
     };
 
@@ -132,8 +132,8 @@ window.onload = function init() {
     var color1 = document.getElementById("color1");
     var intensity1 = document.getElementById("intensity1");
 
-    [color1, intensity1].forEach(function (element) {
-        element.addEventListener("input", function () {
+    [color1, intensity1].forEach(function(element) {
+        element.addEventListener("input", function() {
             baseColors[0] = hexToVec3(color1.value, intensity1.value);
             renderGasket();
         });
@@ -142,8 +142,8 @@ window.onload = function init() {
     var color2 = document.getElementById("color2");
     var intensity2 = document.getElementById("intensity2");
 
-    [color2, intensity2].forEach(function (element) {
-        element.addEventListener("input", function () {
+    [color2, intensity2].forEach(function(element) {
+        element.addEventListener("input", function() {
             baseColors[1] = hexToVec3(color2.value, intensity2.value);
             renderGasket();
         });
@@ -152,8 +152,8 @@ window.onload = function init() {
     var color3 = document.getElementById("color3");
     var intensity3 = document.getElementById("intensity3");
 
-    [color3, intensity3].forEach(function (element) {
-        element.addEventListener("input", function () {
+    [color3, intensity3].forEach(function(element) {
+        element.addEventListener("input", function() {
             baseColors[2] = hexToVec3(color3.value, intensity3.value);
             renderGasket();
         });
@@ -162,8 +162,8 @@ window.onload = function init() {
     var color4 = document.getElementById("color4");
     var intensity4 = document.getElementById("intensity4");
 
-    [color4, intensity4].forEach(function (element) {
-        element.addEventListener("input", function () {
+    [color4, intensity4].forEach(function(element) {
+        element.addEventListener("input", function() {
             baseColors[3] = hexToVec3(color4.value, intensity4.value);
             renderGasket();
         });
@@ -172,7 +172,7 @@ window.onload = function init() {
     // Background color settings
     var bgColor = document.getElementById("bgColor");
 
-    bgColor.addEventListener("input", function () {
+    bgColor.addEventListener("input", function() {
         bgRed = parseInt(bgColor.value.substr(1, 2), 16) / 255;
         bgGreen = parseInt(bgColor.value.substr(3, 2), 16) / 255;
         bgBlue = parseInt(bgColor.value.substr(5, 2), 16) / 255;
@@ -403,7 +403,7 @@ function startAnimation() {
         time = time + 1 * speed;
 
         // Stop animation when canvas is clicked
-        document.getElementById("gl-canvas").onclick = function () {
+        document.getElementById("gl-canvas").onclick = function() {
             document.getElementById("start-stop").click();
         };
     }
