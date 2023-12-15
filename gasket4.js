@@ -7,18 +7,18 @@ var baseColors = [
     vec3(1.0, 0.0, 0.0),
     vec3(0.0, 1.0, 0.0),
     vec3(0.0, 0.0, 1.0),
-    vec3(0.0, 0.0, 0.0),
+    vec3(0.5, 0.5, 0.5),
 ];
-var bgRed = 0.8;
-var bgGreen = 0.8;
-var bgBlue = 0.8;
+var bgRed = 1.0;
+var bgGreen = 1.0;
+var bgBlue = 1.0;
 
 var NumTimesToSubdivide = 3; // default subdivision
 var scaleLoc; // scale location
 var scale = 1; // default scale
 
 var speed = 1;
-var axis = 1; //(x=0, y=1, z=2)
+var axis = 2; //(x=0, y=1, z=2)
 var theta = [0, 0, 0];
 var thetaLoc;
 var transform = [0, 0];
@@ -59,6 +59,22 @@ window.onload = function init() {
         document.getElementById("speedValue").textContent = speed + "x";
     };
 
+    // Reset animation
+    document.getElementById("reset").onclick = function () {
+        // Click stop button if animation is running
+        if (!stop) {
+            document.getElementById("start-stop").click();
+        }
+        document.getElementById("speed").disabled = false;
+        points = [];
+        colors = [];
+        theta = [0, 0, 0];
+        transform = [0, 0];
+        scale = 1;
+        time = 0;
+        renderGasket();
+    };
+
     // Reset attributes
     document.getElementById("reset-attr").onclick = function () {
         location.reload();
@@ -66,7 +82,6 @@ window.onload = function init() {
 
     // Animation control
     document.getElementById("start-stop").onclick = function () {
-        render();
         stop = !stop;
         if (!stop) {
             if (time == 0) {
@@ -76,20 +91,6 @@ window.onload = function init() {
         } else {
             document.getElementById("start-stop").innerHTML = "Start";
         }
-    };
-
-    // Reset animation
-    document.getElementById("reset").onclick = function () {
-        // Click stop button if animation is running
-        if (!stop) {
-            document.getElementById("start-stop").click();
-        }
-        points = [];
-        colors = [];
-        theta = [0, 0, 0];
-        transform = [0, 0];
-        scale = 1;
-        renderGasket();
     };
 
     // Start animation when canvas is clicked
@@ -115,6 +116,17 @@ window.onload = function init() {
         recalcBoundary();
         renderGasket();
     });
+
+    // Rotation control, x, y, z
+    document.getElementById("rotateX").onclick = function () {
+        axis = 0;
+    };
+    document.getElementById("rotateY").onclick = function () {
+        axis = 1;
+    };
+    document.getElementById("rotateZ").onclick = function () {
+        axis = 2;
+    };
 
     // Color settings
     var color1 = document.getElementById("color1");
@@ -173,7 +185,7 @@ window.onload = function init() {
         renderGasket();
     });
 
-    // Make sure it render again after changing attributes
+    // Render the gasket when the page is loaded
     renderGasket();
 };
 
