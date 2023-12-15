@@ -6,8 +6,7 @@ var colors = [];
 
 var NumTimesToSubdivide = 3; // default subdivision
 var scaleLoc; // scale location
-//var initialScale = 1;
-var scale = [1, 1, 1]; // default scale
+var scale = 1; // default scale
 
 var speed = 1;
 var axis = 2; //(x=0, y=1, z=2)
@@ -18,9 +17,9 @@ var transformLoc;
 var left = true;
 var up = true;
 
-var hBoundary = 0.6;
-var topBoundary = 0.52;
-var bottomBoundary = -0.76;
+const hBoundary = 0.6;
+const topBoundary = 0.52;
+const bottomBoundary = -0.76;
 
 var time = 0;
 var stop = true;
@@ -29,18 +28,6 @@ var cBuffer;
 var vBuffer;
 var vColor;
 var vPosition;
-
-function setScaleToUserInput() {
-    scale[0] = document.getElementById("x-scale").value;
-    scale[1] = document.getElementById("y-scale").value;
-    scale[2] = document.getElementById("z-scale").value;
-}
-
-function setRotationToUserInput() {
-    theta[0] = document.getElementById("x-rotate").value;
-    theta[1] = document.getElementById("y-rotate").value;
-    theta[2] = document.getElementById("z-rotate").value;
-}
 
 window.onload = function init() {
     canvas = document.getElementById("gl-canvas");
@@ -84,7 +71,7 @@ window.onload = function init() {
     thetaLoc = gl.getUniformLocation(program, "theta");
     scaleLoc = gl.getUniformLocation(program, "scale");
     transformLoc = gl.getUniformLocation(program, "transform");
-    gl.uniform3fv(scaleLoc, scale);
+    gl.uniform1f(scaleLoc, scale);
 
     // Parameters
     // Speed
@@ -99,103 +86,43 @@ window.onload = function init() {
         points = [];
         colors = [];
         createGasket();
-        //divideTetra(vertices[0], vertices[1], vertices[2], vertices[3], NumTimesToSubdivide);
         render();
     };
 
-    // Rotation
-    document.getElementById("x-rotate").onchange = function () {
-        theta[0] = document.getElementById("x-rotate").value;
-        render();
-    };
-    document.getElementById("y-rotate").onchange = function () {
-        theta[1] = document.getElementById("y-rotate").value;
-        render();
-    };
-    document.getElementById("z-rotate").onchange = function () {
-        theta[2] = document.getElementById("z-rotate").value;
-        render();
+    // Reset attributes
+    document.getElementById("reset-attr").onclick = function () {
+        location.reload();
     };
 
-    // Scale
-    document.getElementById("x-scale").onchange = function () {
-        scale[0] = document.getElementById("x-scale").value;
-        gl.uniform3fv(scaleLoc, scale);
+    // Animation control
+    document.getElementById("start-stop").onclick = function () {
         render();
-    };
-    document.getElementById("y-scale").onchange = function () {
-        scale[1] = document.getElementById("y-scale").value;
-        gl.uniform3fv(scaleLoc, scale);
-        render();
-    };
-    document.getElementById("z-scale").onchange = function () {
-        scale[2] = document.getElementById("z-scale").value;
-        gl.uniform3fv(scaleLoc, scale);
-        render();
-    };
-
-    // Reset transformation (Rotation & Scale)
-    document.getElementById("reset-transformation").onclick = function () {
-        // Reset rotation
-        document.getElementById("x-rotate").value = 0;
-        document.getElementById("y-rotate").value = 0;
-        document.getElementById("z-rotate").value = 0;
-        theta = [0, 0, 0];
-        // Reset Scale
-        document.getElementById("x-scale").value = 1;
-        document.getElementById("y-scale").value = 1;
-        document.getElementById("z-scale").value = 1;
-        scale = [1, 1, 1];
-        gl.uniform3fv(scaleLoc, scale);
-        render();
-    };
-
-    // Animation
-    // Start Animation
-    document.getElementById("start").onclick = function () {
-        disableInput(); // disable input from user during animation
-        gl.uniform3fv(scaleLoc, scale);
-        render();
-        stop = false; // repeat the animation
+        stop = !stop;
+        if (!stop) {
+            document.getElementById("start-stop").innerHTML = "Stop";
+        } else {
+            document.getElementById("start-stop").innerHTML = "Start";
+        }
     };
 
     // Reset animation
     document.getElementById("reset").onclick = function () {
-        //window.location.reload();
-
-        document.getElementById("speed-range").value = 1;
-        document.getElementById("subdivision-range").value = 3;
-        speed = 1;
-        NumTimesToSubdivide = 3;
-        //color1 = vec3(1.0, 0.0, 0.0);
-        //color2 = vec3(0.0, 1.0, 0.0);
-        //color3 = vec3(0.0, 0.0, 1.0);
-        //color4 = vec3(0.0, 0.0, 0.0);
-        gl.clearColor(0.5, 0.5, 0.5, 1.0);
+        // Click stop button if animation is running
+        if (!stop) {
+            document.getElementById("start-stop").click();
+        }
         points = [];
         colors = [];
         createGasket();
-        //divideTetra(vertices[0], vertices[1], vertices[2], vertices[3], NumTimesToSubdivide);
         render();
-    };
-
-    // Stop Animation
-    document.getElementById("stop").onclick = function () {
-        enableInput(); // enable input from user
-        stop = true; // stop animation
-        time = 0;
-        setRotationToUserInput();
-        setScaleToUserInput();
-        gl.uniform3fv(scaleLoc, scale);
-
-        document.getElementById("gl-canvas").onclick = function () {
-            document.getElementById("start").click();
-        };
+        theta = [0, 0, 0];
+        transform = [0, 0];
+        scale = 1;
     };
 
     // Start animation when canvas is clicked
     document.getElementById("gl-canvas").onclick = function () {
-        document.getElementById("start").click();
+        document.getElementById("start-stop").click();
     };
 
     startAnimation();
@@ -280,16 +207,6 @@ function divideTetra(a, b, c, d, count) {
     }
 }
 
-function disableInput() {
-    document.getElementById("start").disabled = true;
-    document.getElementById("stop").disabled = false; // Disable all input except "stop" button
-}
-
-function enableInput() {
-    document.getElementById("start").disabled = false;
-    document.getElementById("stop").disabled = true; // Enable all input except "stop" button
-}
-
 function startAnimation() {
     gl.clearColor(0.8, 0.8, 0.8, 1.0); // Set the background color to gray
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // Clear color and depth buffer
@@ -309,17 +226,13 @@ function startAnimation() {
         }
         // Enlarge scale to appropriate size
         else if (time >= 360 && time < 420) {
-            scale[0] += 0.01 * speed;
-            scale[1] += 0.01 * speed;
-            scale[2] += 0.01 * speed;
-            gl.uniform3fv(scaleLoc, scale);
+            scale += 0.01 * speed;
+            gl.uniform1f(scaleLoc, scale);
         }
         // Rescale back to original size
         else if (time >= 420 && time < 480) {
-            scale[0] -= 0.01 * speed;
-            scale[1] -= 0.01 * speed;
-            scale[2] -= 0.01 * speed;
-            gl.uniform3fv(scaleLoc, scale);
+            scale -= 0.01 * speed;
+            gl.uniform1f(scaleLoc, scale);
         }
         // Random movement
         else {
@@ -377,7 +290,7 @@ function startAnimation() {
 
         // Stop animation when canvas is clicked
         document.getElementById("gl-canvas").onclick = function () {
-            document.getElementById("stop").click();
+            document.getElementById("start-stop").click();
         };
     }
     gl.uniform3fv(thetaLoc, theta);
