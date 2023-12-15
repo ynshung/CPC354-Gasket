@@ -1,0 +1,42 @@
+html {
+    font-family: sans-serif;
+}
+
+canvas {
+    border-radius: 8px;
+}
+
+.color-container {
+    width: 42px;
+    height: 42px;
+    border-radius: 100%;
+    overflow: hidden;
+    border: 1px solid #ccc;
+}
+
+input[type="color"] {
+    border: 0;
+    padding: 0;
+    width: 200%;
+    height: 200%;
+    cursor: pointer;
+    transform: translate(-25%, -25%);
+}
+
+#page-container {
+    max-width: 1024px;
+    margin: 0 auto;
+    padding: 32px;
+}
+
+#attr-container {
+    max-width: 256px;
+}
+
+.fs-7 {
+    font-size: 0.875rem;
+}
+
+.fs-8 {
+    font-size: 0.75rem;
+}
