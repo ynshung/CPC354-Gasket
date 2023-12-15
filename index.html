@@ -11,6 +11,7 @@
 
             uniform vec3 theta;
             uniform vec3 scale;
+            uniform vec2 transform;
 
             void main()
             {
@@ -44,6 +45,8 @@
                          
                 fColor = vec4(vColor, 1.0);
                 gl_Position = rz * ry * rx * sc * vec4(vPosition, 1.0);
+                gl_Position.x += transform.x;
+                gl_Position.y += transform.y;
             }
         </script>
 

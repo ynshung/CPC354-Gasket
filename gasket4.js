@@ -13,6 +13,14 @@ var speed = 1;
 var axis = 2; //(x=0, y=1, z=2)
 var theta = [0, 0, 0];
 var thetaLoc;
+var transform = [0, 0];
+var transformLoc;
+var left = true;
+var up = true;
+
+var hBoundary = 0.6;
+var topBoundary = 0.52;
+var bottomBoundary = -0.76;
 
 var time = 0;
 var stop = true;
@@ -21,6 +29,18 @@ var cBuffer;
 var vBuffer;
 var vColor;
 var vPosition;
+
+function setScaleToUserInput() {
+    scale[0] = document.getElementById("x-scale").value;
+    scale[1] = document.getElementById("y-scale").value;
+    scale[2] = document.getElementById("z-scale").value;
+}
+
+function setRotationToUserInput() {
+    theta[0] = document.getElementById("x-rotate").value;
+    theta[1] = document.getElementById("y-rotate").value;
+    theta[2] = document.getElementById("z-rotate").value;
+}
 
 window.onload = function init() {
     canvas = document.getElementById("gl-canvas");
@@ -63,6 +83,7 @@ window.onload = function init() {
 
     thetaLoc = gl.getUniformLocation(program, "theta");
     scaleLoc = gl.getUniformLocation(program, "scale");
+    transformLoc = gl.getUniformLocation(program, "transform");
     gl.uniform3fv(scaleLoc, scale);
 
     // Parameters
@@ -133,9 +154,6 @@ window.onload = function init() {
     // Start Animation
     document.getElementById("start").onclick = function () {
         disableInput(); // disable input from user during animation
-        document.getElementById("reset-transformation").click(); // reset the gasket rotation and scale
-        theta = [0, 0, 0];
-        scale = [1, 1, 1];
         gl.uniform3fv(scaleLoc, scale);
         render();
         stop = false; // repeat the animation
@@ -166,8 +184,8 @@ window.onload = function init() {
         enableInput(); // enable input from user
         stop = true; // stop animation
         time = 0;
-        theta = [0, 0, 0];
-        scale = [1, 1, 1];
+        setRotationToUserInput();
+        setScaleToUserInput();
         gl.uniform3fv(scaleLoc, scale);
 
         document.getElementById("gl-canvas").onclick = function () {
@@ -197,11 +215,6 @@ function createGasket() {
         vec3(-0.4, -0.23, 0.16),
         vec3(0.4, -0.23, 0.16),
     ];
-
-    // Scale down the vertices
-    //for (var i = 0; i < vertices.length; ++i) {
-    //    vertices[i] = scale(initialScale * 0.5, vertices[i]);
-    //}
 
     divideTetra(
         vertices[0],
@@ -268,18 +281,12 @@ function divideTetra(a, b, c, d, count) {
 }
 
 function disableInput() {
-    // document.getElementById("subdivision-range").disabled = true;
-    // document.getElementById("speed-range").disabled = true;
-    // document.getElementById("start").disabled = true;
-    // document.getElementById("reset").disabled = true;
+    document.getElementById("start").disabled = true;
     document.getElementById("stop").disabled = false; // Disable all input except "stop" button
 }
 
 function enableInput() {
-    document.getElementById("subdivision-range").disabled = false;
-    document.getElementById("speed-range").disabled = false;
     document.getElementById("start").disabled = false;
-    document.getElementById("reset").disabled = false;
     document.getElementById("stop").disabled = true; // Enable all input except "stop" button
 }
 
@@ -291,17 +298,14 @@ function startAnimation() {
         // Rotate right 180 degree
         if (time < 90) {
             theta[axis] -= 2.0 * speed;
-            time = time + 1 * speed;
         }
         // Rotate left back to original orientation and left 180 degree
         else if (time >= 90 && time < 270) {
             theta[axis] += 2.0 * speed;
-            time = time + 1 * speed;
         }
         // Rotate right back to original orientation
         else if (time >= 270 && time < 360) {
             theta[axis] -= 2.0 * speed;
-            time = time + 1 * speed;
         }
         // Enlarge scale to appropriate size
         else if (time >= 360 && time < 420) {
@@ -309,7 +313,6 @@ function startAnimation() {
             scale[1] += 0.01 * speed;
             scale[2] += 0.01 * speed;
             gl.uniform3fv(scaleLoc, scale);
-            time = time + 1 * speed;
         }
         // Rescale back to original size
         else if (time >= 420 && time < 480) {
@@ -317,15 +320,60 @@ function startAnimation() {
             scale[1] -= 0.01 * speed;
             scale[2] -= 0.01 * speed;
             gl.uniform3fv(scaleLoc, scale);
-            time = time + 1 * speed;
         }
         // Random movement
         else {
-            theta[0] += 0.5 * speed;
-            theta[1] += 0.5 * speed;
-            theta[2] += 0.5 * speed;
-            time = time + 1 * speed;
+            if (transform[0] > hBoundary) {
+                left = true;
+                // If there are still spaces below, move down
+                if (transform[1] > bottomBoundary) {
+                    up = false;
+                } else if (transform[1] < bottomBoundary) {
+                    up = true;
+                }
+
+            } else if (transform[0] < -hBoundary) {
+                left = false;
+                // If there are still spaces above, move up
+                if (transform[1] < topBoundary) {
+                    up = true;
+                } else if (transform[1] > topBoundary) {
+                    up = false;
+                }
+            } else if (transform[1] > topBoundary) {
+                up = false;
+                // If there are still spaces on the right, move right
+                if (transform[0] < -hBoundary) {
+                    left = false;
+                } else if (transform[0] > hBoundary) {
+                    left = true;
+                }
+            } else if (transform[1] < bottomBoundary) {
+                up = true;
+                // If there are still spaces on the right, move right
+                if (transform[0] < -hBoundary) {
+                    left = false;
+                } else if (transform[0] > hBoundary) {
+                    left = true;
+                }
+            }
+
+            // Move to the left and right
+            if (left) {
+                transform[0] -= 0.01 * speed;
+            } else {
+                transform[0] += 0.01 * speed;
+            }
+
+            // Move up and down
+            if (up) {
+                transform[1] += 0.01 * speed;
+            } else {
+                transform[1] -= 0.01 * speed;
+            }
+            gl.uniform2fv(transformLoc, transform);
         }
+        time = time + 1 * speed;
 
         // Stop animation when canvas is clicked
         document.getElementById("gl-canvas").onclick = function () {
