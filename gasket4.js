@@ -409,7 +409,7 @@ function startAnimation() {
     }
     gl.uniform3fv(thetaLoc, theta);
     gl.drawArrays(gl.TRIANGLES, 0, points.length);
-    requestAnimFrame(startAnimation);
+    if (!stop) requestAnimFrame(startAnimation);
 }
 
 function render() {
