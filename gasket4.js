@@ -9,16 +9,16 @@ var baseColors = [
     vec3(0.0, 0.0, 1.0),
     vec3(0.0, 0.0, 0.0),
 ];
-var bgRed = 0.5;
-var bgGreen = 0.5;
-var bgBlue = 0.5;
+var bgRed = 0.8;
+var bgGreen = 0.8;
+var bgBlue = 0.8;
 
 var NumTimesToSubdivide = 3; // default subdivision
 var scaleLoc; // scale location
 var scale = 1; // default scale
 
 var speed = 1;
-var axis = 2; //(x=0, y=1, z=2)
+var axis = 1; //(x=0, y=1, z=2)
 var theta = [0, 0, 0];
 var thetaLoc;
 var transform = [0, 0];
@@ -26,9 +26,9 @@ var transformLoc;
 var left = true;
 var up = true;
 
-const hBoundary = 0.6;
-const topBoundary = 0.52;
-const bottomBoundary = -0.76;
+var hBoundary = 0.6;
+var topBoundary = 0.52;
+var bottomBoundary = -0.76;
 
 var time = 0;
 var stop = true;
@@ -38,8 +38,13 @@ var vBuffer;
 var vColor;
 var vPosition;
 
+function recalcBoundary() {
+    hBoundary = 0.6 - 0.4 * (scale - 1);
+    topBoundary = 0.52 - 0.5 * (scale - 1);
+    bottomBoundary = -0.76 + 0.2 * (scale - 1);
+}
+
 window.onload = function init() {
-    console.log("first");
     canvas = document.getElementById("gl-canvas");
 
     gl = WebGLUtils.setupWebGL(canvas);
@@ -49,18 +54,9 @@ window.onload = function init() {
 
     // Parameters
     // Speed
-    document.getElementById("speed-range").onchange = function () {
-        speed = document.getElementById("speed-range").value;
-    };
-
-    // Number of subdivision
-    document.getElementById("subdivision-range").onchange = function () {
-        NumTimesToSubdivide =
-            document.getElementById("subdivision-range").value;
-        points = [];
-        colors = [];
-        createGasket();
-        render();
+    document.getElementById("speed").onchange = function () {
+        speed = document.getElementById("speed").value;
+        document.getElementById("speedValue").textContent = speed + "x";
     };
 
     // Reset attributes
@@ -73,6 +69,9 @@ window.onload = function init() {
         render();
         stop = !stop;
         if (!stop) {
+            if (time == 0) {
+                startAnimation();
+            }
             document.getElementById("start-stop").innerHTML = "Stop";
         } else {
             document.getElementById("start-stop").innerHTML = "Start";
@@ -87,11 +86,10 @@ window.onload = function init() {
         }
         points = [];
         colors = [];
-        createGasket();
-        render();
         theta = [0, 0, 0];
         transform = [0, 0];
         scale = 1;
+        renderGasket();
     };
 
     // Start animation when canvas is clicked
@@ -104,7 +102,6 @@ window.onload = function init() {
 
     subdivision.addEventListener("input", function () {
         NumTimesToSubdivide = subdivision.value;
-        console.log(subdivision.value);
         document.getElementById("subdivisionValue").textContent = this.value;
         renderGasket();
     });
@@ -113,19 +110,13 @@ window.onload = function init() {
     var scaleInput = document.getElementById("scale");
 
     scaleInput.addEventListener("input", function () {
-        initialScale = scaleInput.value;
+        scale = scaleInput.value;
         document.getElementById("scaleValue").textContent = this.value;
+        recalcBoundary();
         renderGasket();
     });
 
-    // Event listener for animation speed
-    var speed = document.getElementById("speed");
-
-    speed.addEventListener("input", function () {
-        document.getElementById("speedValue").textContent = this.value + "x";
-    });
-
-    //Color settings
+    // Color settings
     var color1 = document.getElementById("color1");
     var intensity1 = document.getElementById("intensity1");
 
@@ -214,8 +205,6 @@ function renderGasket() {
         vec3(0.4, -0.23, 0.16),
     ];
 
-
-
     divideTetra(
         vertices[0],
         vertices[1],
@@ -259,7 +248,6 @@ function renderGasket() {
     transformLoc = gl.getUniformLocation(program, "transform");
     gl.uniform1f(scaleLoc, scale);
 
-    startAnimation();
     render();
 };
 
@@ -269,34 +257,9 @@ function renderGasket() {
 // First, initialize the vertices of our 3D gasket
 // Four vertices on unit circle
 // Intial tetrahedron with equal length sides
-function createGasket() {
-    var vertices = [
-        vec3(0.0, 0.0, -0.5),
-        vec3(0.0, 0.47, 0.16),
-        vec3(-0.4, -0.23, 0.16),
-        vec3(0.4, -0.23, 0.16),
-    ];
-
-    divideTetra(
-        vertices[0],
-        vertices[1],
-        vertices[2],
-        vertices[3],
-
-        NumTimesToSubdivide
-    );
-}
 
 function triangle(a, b, c, color) {
     // add colors and vertices for one triangle
-
-    var baseColors = [
-        vec3(1.0, 0.0, 0.0),
-        vec3(0.0, 1.0, 0.0),
-        vec3(0.0, 0.0, 1.0),
-        vec3(0.5, 0.5, 0.5),
-    ];
-
     colors.push(baseColors[color]);
     points.push(a);
     colors.push(baseColors[color]);
@@ -342,10 +305,10 @@ function divideTetra(a, b, c, d, count) {
 }
 
 function startAnimation() {
-    gl.clearColor(0.8, 0.8, 0.8, 1.0); // Set the background color to gray
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // Clear color and depth buffer
 
     if (!stop) {
+        if (time < 480) document.getElementById("speed").disabled = true;
         // Rotate right 180 degree
         if (time < 90) {
             theta[axis] -= 2.0 * speed;
@@ -360,16 +323,17 @@ function startAnimation() {
         }
         // Enlarge scale to appropriate size
         else if (time >= 360 && time < 420) {
-            scale += 0.01 * speed;
+            scale = parseFloat(scale) + 0.01 * speed;
             gl.uniform1f(scaleLoc, scale);
         }
         // Rescale back to original size
         else if (time >= 420 && time < 480) {
-            scale -= 0.01 * speed;
+            scale = parseFloat(scale) - 0.01 * speed;
             gl.uniform1f(scaleLoc, scale);
         }
         // Random movement
         else {
+            document.getElementById("speed").disabled = false;
             if (transform[0] > hBoundary) {
                 left = true;
                 // If there are still spaces below, move down
@@ -432,6 +396,7 @@ function startAnimation() {
 }
 
 function render() {
+    gl.clearColor(bgRed, bgGreen, bgBlue, 1.0); // Set the background color to gray
     gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
     gl.vertexAttribPointer(vColor, 3, gl.FLOAT, false, 0, 0);
