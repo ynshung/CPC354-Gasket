@@ -340,6 +340,7 @@ function startAnimation() {
         }
         // Enlarge scale to appropriate size
         else if (time >= 360 && time < 420) {
+            theta = [0, 0, 0];
             scale = parseFloat(scale) + 0.01 * speed;
             gl.uniform1f(scaleLoc, scale);
         }
@@ -409,7 +410,7 @@ function startAnimation() {
     }
     gl.uniform3fv(thetaLoc, theta);
     gl.drawArrays(gl.TRIANGLES, 0, points.length);
-    if (!stop) requestAnimFrame(startAnimation);
+    if (!stop || time !== 0) requestAnimFrame(startAnimation);
 }
 
 function render() {
