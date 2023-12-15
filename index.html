@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
+        <meta charset="UTF-8" />
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
         <title>3D Ident Program</title>
 
@@ -13,34 +14,30 @@
             uniform float scale;
             uniform vec2 transform;
 
-            void main()
-            {
-                //Compute the sines and cosines of theta for each of
-                //the three axes in one computation.
+            void main() {
                 vec3 angles = radians(theta);
                 vec3 c = cos(angles);
                 vec3 s = sin(angles);
 
-                mat4 rx = mat4( 1.0, 0.0, 0.0, 0.0,
-                                0.0, c.x, s.x, 0.0,
-                                0.0, -s.x, c.x, 0.0,
-                                0.0, 0.0, 0.0, 1.0 );
+                mat4 rx = mat4(1.0, 0.0, 0.0, 0.0,
+                               0.0, c.x, s.x, 0.0,
+                               0.0, -s.x, c.x, 0.0,
+                               0.0, 0.0, 0.0, 1.0);
 
-                mat4 ry = mat4( c.y, 0.0, -s.y, 0.0,
-                                0.0, 1.0, 0.0, 0.0,
-                                s.y, 0.0, c.y, 0.0,
-                                0.0, 0.0, 0.0, 1.0 );
+                mat4 ry = mat4(c.y, 0.0, -s.y, 0.0,
+                               0.0, 1.0, 0.0, 0.0,
+                               s.y, 0.0, c.y, 0.0,
+                               0.0, 0.0, 0.0, 1.0);
 
+                mat4 rz = mat4(c.z, s.z, 0.0, 0.0,
+                               -s.z, c.z, 0.0, 0.0,
+                               0.0, 0.0, 1.0, 0.0,
+                               0.0, 0.0, 0.0, 1.0);
 
-                mat4 rz = mat4( c.z, s.z, 0.0, 0.0,
-                                -s.z, c.z, 0.0, 0.0,
-                                0.0, 0.0, 1.0, 0.0,
-                                0.0, 0.0, 0.0, 1.0 );
-
-                mat4 sc = mat4( scale, 0.0, 0.0, 0.0,
-                                0.0, scale, 0.0, 0.0,
-                                0.0, 0.0, scale, 0.0,
-                                0.0, 0.0, 0.0, 1.0 );
+                mat4 sc = mat4(scale, 0.0, 0.0, 0.0,
+                               0.0, scale, 0.0, 0.0,
+                               0.0, 0.0, scale, 0.0,
+                               0.0, 0.0, 0.0, 1.0);
 
                 fColor = vec4(vColor, 1.0);
                 gl_Position = rz * ry * rx * sc * vec4(vPosition, 1.0);
@@ -51,21 +48,17 @@
 
         <script id="fragment-shader" type="x-shader/x-fragment">
             precision mediump float;
-
             varying vec4 fColor;
-
-            void main()
-            {
+            void main() {
                 gl_FragColor = fColor;
             }
         </script>
 
         <link rel="stylesheet" type="text/css" href="style.css" />
-
-        <script type="text/javascript" src="Common/webgl-utils.js"></script>
-        <script type="text/javascript" src="Common/initShaders.js"></script>
-        <script type="text/javascript" src="Common/MV.js"></script>
-        <script type="text/javascript" src="gasket4.js"></script>
+        <script src="Common/webgl-utils.js"></script>
+        <script src="Common/initShaders.js"></script>
+        <script src="Common/MV.js"></script>
+        <script src="gasket4.js"></script>
     </head>
 
     <body>
@@ -73,9 +66,8 @@
             Oops ... your browser doesn't support the HTML5 canvas element
         </canvas>
 
-        <div class="slidecontainer_1">
-            <!-- Slider: Subdivision - 1 to 5 -->
-            <label for="subdivision"> Number of Subdivisions: </label>
+        <div class="slidecontainer" id="slidecontainer_1">
+            <label for="subdivision">Number of Subdivisions:</label>
             <input
                 id="subdivision"
                 type="range"
@@ -83,14 +75,13 @@
                 max="5"
                 value="3"
                 step="1"
-                class="slider_1"
+                class="slider"
             />
             <p>Value: <span id="subdivisionValue">3</span></p>
         </div>
 
-        <div class="slidecontainer_2">
-            <!-- Slider: Initial size - 0.25 to 2 -->
-            <label for="scale"> Initial Size (Scale): </label>
+        <div class="slidecontainer" id="slidecontainer_2">
+            <label for="scale">Initial Size (Scale):</label>
             <input
                 id="scale"
                 type="range"
@@ -98,14 +89,13 @@
                 max="2"
                 value="1"
                 step="0.05"
-                class="slider_2"
+                class="slider"
             />
             <p>Size: <span id="scaleValue">1</span></p>
         </div>
 
-        <div class="slidecontainer_3">
-            <!-- Slider: Animation Speed - 0.5 to 10 -->
-            <label for="speed"> Animation Speed: </label>
+        <div class="slidecontainer" id="slidecontainer_3">
+            <label for="speed">Animation Speed:</label>
             <input
                 id="speed"
                 type="range"
@@ -113,7 +103,7 @@
                 max="3"
                 value="1"
                 step="0.5"
-                class="slider_3"
+                class="slider"
             />
             <p>Speed: <span id="speedValue">1x</span></p>
         </div>
@@ -122,7 +112,7 @@
         <input type="color" id="bgColor" value="#808080" /><br /><br />
 
         <!-- Colour picker for 4 faces-->
-        <label for="color">Color #1</label>
+        <label for="color1">Color #1</label>
         <input type="color" id="color1" value="#ff0000" /><br /><br />
         <input
             type="range"
@@ -133,7 +123,7 @@
             value="1"
         /><br /><br />
 
-        <label for="color">Color #2</label>
+        <label for="color2">Color #2</label>
         <input type="color" id="color2" value="#00ff00" /><br /><br />
         <input
             type="range"
@@ -144,7 +134,7 @@
             value="1"
         /><br /><br />
 
-        <label for="color">Color #3</label>
+        <label for="color3">Color #3</label>
         <input type="color" id="color3" value="#0000ff" /><br /><br />
         <input
             type="range"
@@ -155,7 +145,7 @@
             value="1"
         /><br /><br />
 
-        <label for="color">Color #4</label>
+        <label for="color4">Color #4</label>
         <input type="color" id="color4" value="#000000" /><br /><br />
         <input
             type="range"
